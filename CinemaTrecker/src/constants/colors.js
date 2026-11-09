@@ -1,0 +1,23 @@
+const colors = {
+  PRIMARY: '#1E40AF',
+  PRIMARY_LIGHT: '#DBEAFE',
+
+  BACKGROUND: '#F8FAFC',
+  SURFACE: '#FFFFFF',
+  DARK: '#0F172A',
+  BORDER: '#E2E8F0',
+
+  TEXT: '#1E293B',
+  TEXT_SECONDARY: '#64748B',
+  TEXT_MUTED: '#94A3B8',
+
+  SUCCESS: '#16A34A',
+  WARNING: '#D97706',
+  ERROR: '#DC2626',
+  INFO: '#2563EB',
+
+  WHITE: '#FFFFFF',
+  BACKDROP: 'rgba(0,0,0,0.5)',
+};
+
+export default colors;
