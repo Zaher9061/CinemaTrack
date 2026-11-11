@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Home from './pages/DemoScreen';
 import Profile from './pages/Profile';
@@ -8,6 +8,8 @@ import Watching from './pages/Watching';
 import Settings from './pages/Settings';
 import Recommendations from './pages/Recommendations';
 import WillWatch from './pages/WillWatch';
+import { useMoviesStore } from './src/store/moviesStore';
+
 
 const SCREENS = {
   Home,
@@ -23,6 +25,13 @@ const SCREENS = {
 export default function App() {
   const [history, setHistory] = useState(['Home']);
   const current = history[history.length - 1];
+
+  const hasHydrated = useMoviesStore((s) => s.hasHydrated);
+  const loadMovies = useMoviesStore((s) => s.loadMovies);
+
+  useEffect(() => {
+    if (hasHydrated) loadMovies();
+  }, [hasHydrated]);
 
   const navigate = (name) => {
     if (name === 'Back') {

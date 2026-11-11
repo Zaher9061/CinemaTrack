@@ -1,64 +1,63 @@
-import React, { useEffect } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Navigator from '../components/navigator/Navigator';
 import Header from '../components/header/Header';
-import { AppCard, StatusBadge } from '../src/components/ui';
 import { useMoviesStore } from '../src/store/moviesStore';
 import { useUserStore } from '../src/store/userStore';
-import { PRIORITY_LABELS } from '../src/utils/status';
+import { STATUS_LIST } from '../src/utils/status';
 
 export default function Profile({ navigate }) {
   const items = useMoviesStore((s) => s.items);
-  const isLoading = useMoviesStore((s) => s.isLoading);
-  const hasHydrated = useMoviesStore((s) => s.hasHydrated);
-  const loadMovies = useMoviesStore((s) => s.loadMovies);
   const user = useUserStore((s) => s.user);
 
-  useEffect(() => {
-    if (hasHydrated) loadMovies();
-  }, [hasHydrated]);
-
-  const renderHeader = () => (
-    <View>
-      <View style={styles.top}>
-        <View style={styles.avatar}>
-          <View style={styles.avatarHead} />
-          <View style={styles.avatarBody} />
-        </View>
-        <Text style={styles.name}>{user?.name || 'NAME'}</Text>
-      </View>
-
-      <Text style={styles.listTitle}>Мои фильмы ({items.length})</Text>
-      {isLoading && items.length === 0 ? (
-        <Text style={styles.loading}>Загрузка...</Text>
-      ) : null}
-    </View>
+  const counts = STATUS_LIST.map(
+    (status) => items.filter((m) => m.status === status).length
   );
-
-  const renderItem = ({ item }) => (
-    <AppCard style={styles.card}>
-      <Text style={styles.cardTitle}>
-        {item.title} ({item.year})
-      </Text>
-      <StatusBadge status={item.status} style={styles.badge} />
-      <Text style={styles.cardText}>
-        {item.director} · Приоритет: {PRIORITY_LABELS[item.priority]}
-      </Text>
-    </AppCard>
-  );
+  const maxCount = Math.max(1, ...counts);
+  const totalMinutes = items
+    .filter((m) => m.status === 'watched')
+    .reduce((sum, m) => sum + (m.durationMinutes || 0), 0);
+  const totalHours = Math.round(totalMinutes / 60);
 
   return (
     <View style={styles.container}>
       <Navigator activeId="Profile" onNavigate={navigate} />
       <View style={styles.content}>
         <Header title="ПРОФИЛЬ" onBack={() => navigate('Back')} />
-        <FlatList
-          data={items}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          ListHeaderComponent={renderHeader}
-          contentContainerStyle={styles.list}
-        />
+        <ScrollView>
+          <View style={styles.top}>
+            <View style={styles.avatar}>
+              <View style={styles.avatarHead} />
+              <View style={styles.avatarBody} />
+            </View>
+            <Text style={styles.name}>{user?.name || 'NAME'}</Text>
+          </View>
+
+          <View style={styles.stats}>
+            <Text style={styles.statsTitle}>statistics</Text>
+            <View style={styles.statsRow}>
+              <View style={styles.pie} />
+              <Text style={styles.statsText}>
+                total{'\n'}time{'\n'}watched{'\n'}
+                {totalHours} ч
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.chart}>
+            {counts.map((count, i) => (
+              <View key={STATUS_LIST[i]} style={styles.barWrap}>
+                <Text style={styles.barCount}>{count}</Text>
+                <View
+                  style={[
+                    styles.bar,
+                    { height: 12 + (count / maxCount) * 88 },
+                  ]}
+                />
+              </View>
+            ))}
+          </View>
+        </ScrollView>
       </View>
     </View>
   );
@@ -67,7 +66,6 @@ export default function Profile({ navigate }) {
 const styles = StyleSheet.create({
   container: { flex: 1, flexDirection: 'row', backgroundColor: '#111827' },
   content: { flex: 1 },
-  list: { paddingBottom: 24 },
   top: { alignItems: 'center', paddingVertical: 24 },
   avatar: {
     width: 110,
@@ -92,22 +90,32 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   name: { color: '#FFFFFF', fontSize: 18, marginTop: 12 },
-  listTitle: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    textAlign: 'center',
-    backgroundColor: '#A39274',
-    paddingVertical: 8,
-    marginBottom: 12,
+  stats: { backgroundColor: '#A39274', paddingVertical: 8 },
+  statsTitle: { color: '#FFFFFF', textAlign: 'center', fontSize: 16 },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
   },
-  loading: { color: '#94A3B8', textAlign: 'center', marginBottom: 12 },
-  card: {
-    backgroundColor: '#1E293B',
-    marginHorizontal: 12,
-    marginBottom: 10,
-    padding: 12,
+  pie: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: '#E0B95C',
+    borderWidth: 14,
+    borderColor: '#2C7A8C',
   },
-  cardTitle: { color: '#FFFFFF', fontSize: 16, marginBottom: 6 },
-  badge: { marginBottom: 6 },
-  cardText: { color: '#94A3B8', fontSize: 13 },
+  statsText: { color: '#FFFFFF', fontSize: 16, textAlign: 'center' },
+  chart: {
+    height: 150,
+    backgroundColor: '#1F4E5F',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-around',
+    paddingBottom: 8,
+  },
+  barWrap: { alignItems: 'center', justifyContent: 'flex-end' },
+  barCount: { color: '#FFFFFF', fontSize: 12, marginBottom: 2 },
+  bar: { width: 22, backgroundColor: '#D9B96A' },
 });

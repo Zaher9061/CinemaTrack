@@ -1,11 +1,13 @@
 import React, { useRef, useState } from 'react';
-import { Animated, Image, Pressable, StyleSheet, Text } from 'react-native';
+import { Animated, Image, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 const ICONS = {
   menu: require('../../assets/menu.png'),
   watched: require('../../assets/watched.png'),
   search: require('../../assets/search.png'),
+  recom: require('../../assets/recom.png'),
   watching: require('../../assets/watching.png'),
+  willwatch: require('../../assets/willwatch.png'),
   settings: require('../../assets/settings.png'),
   profile: require('../../assets/profile.png'),
   back: require('../../assets/back.png'),
@@ -14,7 +16,9 @@ const ICONS = {
 const ITEMS = [
   { id: 'watched', label: 'Просмотрено', screen: 'Watched', icon: ICONS.watched },
   { id: 'search', label: 'Поиск', screen: 'Search', icon: ICONS.search },
+  { id: 'recom', label: 'Рекомендации', screen: 'Recommendations', icon: ICONS.recom },
   { id: 'watching', label: 'Пока смотрю', screen: 'Watching', icon: ICONS.watching },
+  { id: 'willwatch', label: 'Буду смотреть', screen: 'WillWatch', icon: ICONS.willwatch },
   { id: 'settings', label: 'Настройки', screen: 'Settings', icon: ICONS.settings },
   { id: 'profile', label: 'Профиль', screen: 'Profile', icon: ICONS.profile },
   { id: 'back', label: 'Назад', screen: 'Back', icon: ICONS.back },
@@ -48,6 +52,7 @@ export default function Navigator({
         <Image source={ICONS.menu} style={styles.menuIcon} />
       </Pressable>
 
+      <ScrollView showsVerticalScrollIndicator={false}>
       {ITEMS.map((item) => {
         const active = item.screen === activeId;
         return (
@@ -68,6 +73,7 @@ export default function Navigator({
           </Pressable>
         );
       })}
+      </ScrollView>
     </Animated.View>
   );
 }
