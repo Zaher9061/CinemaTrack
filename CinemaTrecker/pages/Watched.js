@@ -9,6 +9,7 @@ export default function Watched({ navigate }) {
   const items = useMoviesStore((s) => s.items);
   const isLoading = useMoviesStore((s) => s.isLoading);
   const updateMovie = useMoviesStore((s) => s.updateMovie);
+  const removeMovie = useMoviesStore((s) => s.removeMovie); // Получаем функцию удаления
 
   const movies = items.filter((m) => m.status === 'watched');
 
@@ -26,16 +27,22 @@ export default function Watched({ navigate }) {
           ) : null}
 
           {movies.map((movie) => (
-            <View key={movie.id}>
+            <View key={movie.id} style={styles.itemContainer}>
               <MovieBlock movie={movie} />
-              <Pressable
-                style={styles.action}
-                onPress={() =>
-                  updateMovie(movie.id, { status: 'watching', progress: 0 })
-                }
-              >
-                <Text style={styles.actionText}>ПЕРЕСМОТРЕТЬ</Text>
-              </Pressable>
+              <View style={styles.actionsRow}>
+                <Pressable
+                  style={styles.actionButton}
+                  onPress={() => updateMovie(movie.id, { status: 'watching', progress: 0 })}
+                >
+                  <Text style={styles.actionText}>ПЕРЕСМОТРЕТЬ</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.actionButton, styles.deleteButton]}
+                  onPress={() => removeMovie(movie.id)}
+                >
+                  <Text style={styles.deleteText}>УДАЛИТЬ</Text>
+                </Pressable>
+              </View>
             </View>
           ))}
         </ScrollView>
@@ -48,11 +55,16 @@ const styles = StyleSheet.create({
   container: { flex: 1, flexDirection: 'row', backgroundColor: '#111827' },
   content: { flex: 1 },
   info: { color: '#94A3B8', textAlign: 'center', marginTop: 24, fontSize: 16 },
-  action: {
-    height: 30,
+  itemContainer: { marginBottom: 12 },
+  actionsRow: { flexDirection: 'row', height: 30 },
+  actionButton: {
+    flex: 1,
     backgroundColor: '#D9D9D9',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 2,
   },
-  actionText: { color: '#34C759', fontSize: 14 },
+  deleteButton: { backgroundColor: '#7F1D1D' }, // Темно-красный
+  actionText: { color: '#34C759', fontSize: 12, fontWeight: 'bold' },
+  deleteText: { color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' },
 });

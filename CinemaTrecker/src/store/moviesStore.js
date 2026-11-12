@@ -1,26 +1,27 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MOCK_MOVIES } from '../data/mockMovies';
+// УДАЛЕНО: import { MOCK_MOVIES } from '../data/mockMovies';
 import { delay } from '../utils/delay';
 
 export const useMoviesStore = create(
   persist(
     (set, get) => ({
-      items: [],
+      items: [], // При первом запуске будет пустой массив
       isLoading: false,
       error: null,
       hasHydrated: false,
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
 
+      // Теперь эта функция просто эмулирует загрузку (например, для показа спиннера)
+      // Но данные больше не подгружаются из моков.
       loadMovies: async () => {
         set({ isLoading: true, error: null });
         try {
-          await delay(1000);
-          if (get().items.length === 0) {
-            set({ items: MOCK_MOVIES });
-          }
+          await delay(1000); // Имитация запроса к серверу
+          // Если нужно, здесь можно добавить загрузку из OMDb (популярные фильмы)
+          // Но пока просто выключаем загрузку, оставляя текущие items
           set({ isLoading: false });
         } catch (e) {
           set({ isLoading: false, error: 'Не удалось загрузить список' });
@@ -105,10 +106,12 @@ export const useMoviesStore = create(
         }
       },
 
-      resetToMock: async () => {
+      // УДАЛЕНО: resetToMock, так как моков больше нет.
+      // Если вам нужна кнопка "Очистить всё", сделайте такую функцию:
+      clearAll: async () => {
         set({ isLoading: true });
         await delay(500);
-        set({ items: MOCK_MOVIES, isLoading: false, error: null });
+        set({ items: [], isLoading: false, error: null });
       },
     }),
     {

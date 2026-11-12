@@ -9,17 +9,9 @@ export default function Watching({ navigate }) {
   const items = useMoviesStore((s) => s.items);
   const isLoading = useMoviesStore((s) => s.isLoading);
   const updateMovie = useMoviesStore((s) => s.updateMovie);
+  const removeMovie = useMoviesStore((s) => s.removeMovie);
 
   const movies = items.filter((m) => m.status === 'watching');
-
-  const addProgress = (movie) => {
-    const next = Math.min(1, (movie.progress || 0) + 0.25);
-    if (next >= 1) {
-      updateMovie(movie.id, { status: 'watched', progress: 1 });
-    } else {
-      updateMovie(movie.id, { progress: Number(next.toFixed(2)) });
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -35,21 +27,22 @@ export default function Watching({ navigate }) {
           ) : null}
 
           {movies.map((movie) => (
-            <View key={movie.id}>
+            <View key={movie.id} style={styles.itemContainer}>
               <MovieBlock movie={movie} />
-              <Pressable
-                style={styles.barBackground}
-                onPress={() => addProgress(movie)}
-              >
-                <View style={styles.barTrack}>
-                  <View
-                    style={[
-                      styles.barFill,
-                      { width: `${(movie.progress || 0) * 100}%` },
-                    ]}
-                  />
-                </View>
-              </Pressable>
+              <View style={styles.actionsRow}>
+                <Pressable
+                  style={styles.actionButton}
+                  onPress={() => updateMovie(movie.id, { status: 'watched', progress: 1 })}
+                >
+                  <Text style={styles.actionText}>ПРОСМОТРЕНО</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.actionButton, styles.deleteButton]}
+                  onPress={() => removeMovie(movie.id)}
+                >
+                  <Text style={styles.deleteText}>УДАЛИТЬ</Text>
+                </Pressable>
+              </View>
             </View>
           ))}
         </ScrollView>
@@ -62,12 +55,16 @@ const styles = StyleSheet.create({
   container: { flex: 1, flexDirection: 'row', backgroundColor: '#111827' },
   content: { flex: 1 },
   info: { color: '#94A3B8', textAlign: 'center', marginTop: 24, fontSize: 16 },
-  barBackground: {
-    height: 30,
+  itemContainer: { marginBottom: 12 },
+  actionsRow: { flexDirection: 'row', height: 30 },
+  actionButton: {
+    flex: 1,
     backgroundColor: '#D9D9D9',
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 12,
+    marginRight: 2,
   },
-  barTrack: { height: 14, backgroundColor: '#000000' },
-  barFill: { height: 14, backgroundColor: '#F58A1F' },
+  deleteButton: { backgroundColor: '#7F1D1D' },
+  actionText: { color: '#34C759', fontSize: 12, fontWeight: 'bold' },
+  deleteText: { color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' },
 });
